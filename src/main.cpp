@@ -1,16 +1,15 @@
-#include "config.h"
 
+#define STB_IMAGE_IMPLEMENTATION    
+#include "config.h"
+#include "stb/stb_image.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
-
 
 int main(void)	
 {
 	std::cout << "Hello World!" << std::endl;
 	
-	int success;
-	char infoLog[512];
 
 	glfwInit();
 
@@ -49,14 +48,13 @@ int main(void)
 	*/
 
 	Shader shader("assets/vertex_core.glsl", "assets/fragment_core.glsl");
-	Shader shader2("assets/vertex_core.glsl", "assets/fragment_core2.glsl");
 
 	// vertex array
 	float vertices[] = {
-		-0.25f, -0.5f, 0.0f,	1.0f, 1.0f, 0.5f,
-		0.15f,  0.0f,  0.0f,	0.5f, 1.0f, 0.75f,
-		0.0f,   0.5f,  0.0f,	0.6f, 1.0f, 0.2f,
-		0.5f,   -0.4f, 0.0f,	1.0f, 0.2f, 1.0f
+		-0.5f, -0.5f, 0.0f,		1.0f, 1.0f, 0.5f,	0.0f, 0.0f,
+		-0.5f, 0.5f,  0.0f,		0.5f, 1.0f, 0.75f,  0.0f, 1.0f,
+		0.5f,  -0.5f, 0.0f,		0.6f, 1.0f, 0.2f,	1.0f, 0.0f,
+		0.5f,  0.5f,  0.0f,		1.0f, 0.2f, 1.0f,	1.0f, 1.0f
 	};
 
 	unsigned int indices[] = {
@@ -92,20 +90,50 @@ int main(void)
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	// texture
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	// TEXTURES
+	unsigned int texture1;
+
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// set the texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	// set texture filtering to GL_LINEAR
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load and generate the texture
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load("assets/obama10.jpg", &width, &height, &nrChannels, 0);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+			GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	stbi_image_free(data);
+
 
 	shader.activate();
-	shader.setMat4("transform", trans);
-
-	glm::mat4 trans2 = glm::mat4(1.0f);
-	trans2 = glm::scale(trans2, glm::vec3(1.5f));
-	trans2 = glm::rotate(trans2, glm::radians(15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-
-	shader2.activate();
-	shader2.setMat4("transform",trans2);
-
+	shader.setInt("texture1", 0);
+	// glm::mat4 trans = glm::mat4(1.0f);
+	// trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	// trans = glm::scale(trans, glm::vec3(0.5f, 1.5f, 0.5f));
+	// shader.activate();
+	// shader.setMat4("transform", trans);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -115,28 +143,12 @@ int main(void)
 		// render 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		// rotate
-		trans = glm::rotate(trans,glm::radians((float)glfwGetTime()/ 100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		shader.activate();
-		shader.setMat4("transform", trans);
-
-		// draw shapes
 		glBindVertexArray(VAO);
+
 		shader.activate();
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		trans2 = glm::rotate(trans2, glm::radians((float)glfwGetTime() / -100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		shader2.activate();
-		shader2.setMat4("transform", trans2);
-
-		shader2.activate();
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(GLuint)));
-
-		// second triangle
-		// glUseProgram(shaderPrograms[1]);
-		// glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(unsigned int)));
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
