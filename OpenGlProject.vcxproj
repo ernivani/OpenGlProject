@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\config.h" />
+    <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\fragment_core.glsl" />

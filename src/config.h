@@ -12,3 +12,5 @@
 #include <string>
 #include <streambuf>
 #include <sstream>
+
+#include "Shader.h"

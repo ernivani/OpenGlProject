@@ -1,31 +1,21 @@
 #include "config.h"
 
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
-std::string loadShader(const char* filename);
 
 
 int main(void)	
 {
-	std::cout << "Hello, World!" << std::endl;
+	std::cout << "Hello World!" << std::endl;
 	
 	int success;
 	char infoLog[512];
 
-	// glm test
-	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-	glm::mat4 trans = glm::mat4(1.0f); // matrice identit�
-	trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f)); // translation
-	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // rotation
-	trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f)); // scale
-
-	vec = trans * vec;
-
-
 	glfwInit();
 
 	// opengl version 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -58,115 +48,20 @@ int main(void)
 		shaders
 	*/
 
-	// compile vertex shader
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = loadShader("assets/vertex_core.glsl");
-	const GLchar* vertShader = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertShader, NULL);
-	glCompileShader(vertexShader);
-
-	// catch errors
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	// compile fragment shader
-	unsigned int fragmentShaders[2];
-
-	fragmentShaders[0] = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string fragmentShaderSource = loadShader("assets/fragment_core.glsl");
-	const GLchar* fragShader = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShaders[0], 1, &fragShader, NULL);
-	glCompileShader(fragmentShaders[0]);
-
-	// catch errors
-	glGetShaderiv(fragmentShaders[0], GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShaders[0], 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	fragmentShaders[1] = glCreateShader(GL_FRAGMENT_SHADER);
-	fragmentShaderSource = loadShader("assets/fragment_core2.glsl");
-	fragShader = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShaders[1], 1, &fragShader, NULL);
-	glCompileShader(fragmentShaders[1]);
-
-	// catch errors
-	glGetShaderiv(fragmentShaders[1], GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShaders[1], 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	// create shader program
-	unsigned int shaderPrograms[2];
-
-	shaderPrograms[0] = glCreateProgram();
-	
-	glAttachShader(shaderPrograms[0], vertexShader);
-	glAttachShader(shaderPrograms[0], fragmentShaders[0]);
-	glLinkProgram(shaderPrograms[0]);
-
-	// catch errors
-	glGetProgramiv(shaderPrograms[0], GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderPrograms[0], 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-
-	shaderPrograms[1] = glCreateProgram();
-
-	glAttachShader(shaderPrograms[1], vertexShader);
-	glAttachShader(shaderPrograms[1], fragmentShaders[1]);
-	glLinkProgram(shaderPrograms[1]);
-
-	// catch errors
-	glGetProgramiv(shaderPrograms[1], GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderPrograms[1], 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShaders[0]);
-	glDeleteShader(fragmentShaders[1]);
+	Shader shader("assets/vertex_core.glsl", "assets/fragment_core.glsl");
+	Shader shader2("assets/vertex_core.glsl", "assets/fragment_core2.glsl");
 
 	// vertex array
-	// float vertices[] = {
-	// 	0.5f, 0.5f, 0.0f, // top right
-	// 	-0.5f, 0.5f, 0.0f, // top left
-	// 	-0.5f, -0.5f, 0.0f, // bottom left
-	// 	0.5f, -0.5f, 0.0f, // bottom right
-	// };
-	// unsigned int indices[] = {
-	// 	0, 1, 2, // first triangle
-	// 	2, 3, 0 // second triangle
-	// };
-
 	float vertices[] = {
-
-		// first triangle
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.25f, 0.5f, 0.0f, // bottom right
-		-0.1f, -0.5f, 0.0f, // top
-
-		// second triangle
-		0.5f, -0.5f, 0.0f, // top right
-		0.25f, 0.5f, 0.0f, // top left
-		0.1f, -0.5f, 0.0f, // bottom
+		-0.25f, -0.5f, 0.0f,	1.0f, 1.0f, 0.5f,
+		0.15f,  0.0f,  0.0f,	0.5f, 1.0f, 0.75f,
+		0.0f,   0.5f,  0.0f,	0.6f, 1.0f, 0.2f,
+		0.5f,   -0.4f, 0.0f,	1.0f, 0.2f, 1.0f
 	};
 
 	unsigned int indices[] = {
 		0, 1, 2, // first triangle
-		3, 4, 5 // second triangle
+		3, 1, 2 // second triangle
 	};
 
 	// VAO, VBO
@@ -182,13 +77,34 @@ int main(void)
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// set vertex attributes 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
 	// setup EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+	// set attributes pointers	
+
+	//position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//color
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	shader.activate();
+	shader.setMat4("transform", trans);
+
+	glm::mat4 trans2 = glm::mat4(1.0f);
+	trans2 = glm::scale(trans2, glm::vec3(1.5f));
+	trans2 = glm::rotate(trans2, glm::radians(15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+
+	shader2.activate();
+	shader2.setMat4("transform",trans2);
 
 
 	while (!glfwWindowShouldClose(window))
@@ -200,17 +116,28 @@ int main(void)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// rotate
+		trans = glm::rotate(trans,glm::radians((float)glfwGetTime()/ 100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		shader.activate();
+		shader.setMat4("transform", trans);
+
 		// draw shapes
 		glBindVertexArray(VAO);
-
-		// first triangle
-		glUseProgram(shaderPrograms[0]);
+		shader.activate();
 		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-		// second triangle
-		glUseProgram(shaderPrograms[1]);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(unsigned int)));
 
+		trans2 = glm::rotate(trans2, glm::radians((float)glfwGetTime() / -100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		shader2.activate();
+		shader2.setMat4("transform", trans2);
+
+		shader2.activate();
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(GLuint)));
+
+		// second triangle
+		// glUseProgram(shaderPrograms[1]);
+		// glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(3 * sizeof(unsigned int)));
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -237,28 +164,4 @@ void ProcessInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
-}
-
-std::string loadShader(const char* filename)
-{
-	std::ifstream file;
-	std::stringstream buf;
-
-	std::string ret = "";
-
-	file.open(filename);
-
-	if (file.is_open()) {
-		buf << file.rdbuf();
-		ret = buf.str();
-	}
-	else {
-		std::cout << "Could not open file " << filename << std::endl;
-	}
-
-	file.close();
-
-	return ret;
-	
-
 }

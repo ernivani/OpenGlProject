@@ -1,2 +1,4 @@
 ﻿  main.cpp
+C:\Users\tlind\source\repos\OpenGlProject\OpenGlProject\src\main.cpp(13,7): warning C4101: 'infoLog' : variable locale non référencée
+C:\Users\tlind\source\repos\OpenGlProject\OpenGlProject\src\main.cpp(12,6): warning C4101: 'success' : variable locale non référencée
   OpenGlProject.vcxproj -> C:\Users\tlind\source\repos\OpenGlProject\x64\Debug\OpenGlProject.exe
