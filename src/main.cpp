@@ -6,6 +6,12 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
 
+float mixVal= 0.5f;
+
+
+Joystick mainJ(0);
+
+
 int main(void)	
 {
 	std::cout << "Hello World!" << std::endl;
@@ -42,6 +48,16 @@ int main(void)
 	glViewport(0, 0, 800, 600);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	glfwSetKeyCallback(window, Keyboard::keyCallback);
+
+	glfwSetMouseButtonCallback(window, Mouse::mouseButtonCallback);
+	glfwSetCursorPosCallback(window, Mouse::cursorPosCallback);
+	glfwSetScrollCallback(window, Mouse::mouseWheelCallback);
+
+
+
+
 
 	/*
 		shaders
@@ -83,11 +99,11 @@ int main(void)
 	// set attributes pointers	
 
 	//position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	//color
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	// texture
@@ -95,7 +111,7 @@ int main(void)
 	glEnableVertexAttribArray(2);
 
 	// TEXTURES
-	unsigned int texture1;
+	unsigned int texture1, texture2;
 
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -111,12 +127,11 @@ int main(void)
 	// load and generate the texture
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("assets/obama10.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("assets/image1.jpg", &width, &height, &nrChannels, 0);
 
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-			GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -126,30 +141,67 @@ int main(void)
 
 	stbi_image_free(data);
 
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+
+	data = stbi_load("assets/image2.png", &width, &height, &nrChannels, 0);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture 2" << std::endl;
+	}
+
+	stbi_image_free(data);
+
+	// shader
+
 
 	shader.activate();
 	shader.setInt("texture1", 0);
-	// glm::mat4 trans = glm::mat4(1.0f);
+	shader.setInt("texture2", 1);
+
+
+	glm::mat4 trans = glm::mat4(1.0f);
 	// trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	// trans = glm::scale(trans, glm::vec3(0.5f, 1.5f, 0.5f));
-	// shader.activate();
-	// shader.setMat4("transform", trans);
+	shader.activate();
+	shader.setMat4("transform", trans);
+
+	mainJ.update();
+	if (mainJ.isPresent()) {
+		std::cout << mainJ.getName() << " is present." << std::endl;
+	}
+
 
 	while (!glfwWindowShouldClose(window))
 	{
+
 		// process input
 		ProcessInput(window);
 
 		// render 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+
 		glBindVertexArray(VAO);
 
 		shader.activate();
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		shader.setFloat("mixVal", mixVal);
 
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -172,8 +224,25 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void ProcessInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (Keyboard::key(GLFW_KEY_ESCAPE))
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
+
+	// change mix value
+	if (Keyboard::key(GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		mixVal += 0.0005f;
+		if (mixVal >= 1.0f)
+			mixVal = 1.0f;
+	}
+
+	if (Keyboard::key(GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		mixVal -= 0.0005f;
+		if (mixVal <= 0.0f)
+			mixVal = 0.0f;
+	}
+
+	mainJ.update();
 }

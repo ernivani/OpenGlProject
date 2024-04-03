@@ -32,6 +32,8 @@ public:
 
 	void setInt(const std::string& name, int value);
 
+	void setFloat(const std::string& name, float value);
+
 };
 #endif 
 

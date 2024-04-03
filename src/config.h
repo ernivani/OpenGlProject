@@ -14,3 +14,6 @@
 #include <sstream>
 
 #include "Shader.h"
+#include "io/keyboard.h"
+#include "io/mouse.h"
+#include "io/joystick.h"
