@@ -27,6 +27,15 @@
     <ClInclude Include="src\Shader.h">
       <Filter>Fichiers sources\src</Filter>
     </ClInclude>
+    <ClInclude Include="src\io\joystick.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\keyboard.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\mouse.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -37,6 +46,15 @@
     </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\joystick.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\keyboard.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\mouse.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

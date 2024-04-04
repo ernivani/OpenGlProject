@@ -8,7 +8,7 @@ void ProcessInput(GLFWwindow* window);
 
 float mixVal= 0.5f;
 
-
+glm::mat4 transform = glm::mat4(1.0f);
 Joystick mainJ(0);
 
 
@@ -198,6 +198,7 @@ int main(void)
 		shader.activate();
 
 		shader.setFloat("mixVal", mixVal);
+		shader.setMat4("transform", transform);	
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
@@ -242,6 +243,51 @@ void ProcessInput(GLFWwindow* window)
 		mixVal -= 0.0005f;
 		if (mixVal <= 0.0f)
 			mixVal = 0.0f;
+	}
+
+	if (Keyboard::key(GLFW_KEY_W) == GLFW_PRESS)
+	{
+		transform = glm::translate(transform, glm::vec3(0.0f, 0.001f, 0.0f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_S) == GLFW_PRESS)
+	{
+		transform = glm::translate(transform, glm::vec3(0.0f, -0.001f, 0.0f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_A) == GLFW_PRESS)
+	{
+		transform = glm::translate(transform, glm::vec3(-0.001f, 0.0f, 0.0f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_D) == GLFW_PRESS)
+	{
+		transform = glm::translate(transform, glm::vec3(0.001f, 0.0f, 0.0f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		transform = glm::rotate(transform, glm::radians(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_E) == GLFW_PRESS)
+	{
+		transform = glm::rotate(transform, glm::radians(-1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_R) == GLFW_PRESS)
+	{
+		transform = glm::scale(transform, glm::vec3(1.001f, 1.001f, 1.001f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_F) == GLFW_PRESS)
+	{
+		transform = glm::scale(transform, glm::vec3(0.999f, 0.999f, 0.999f));
+	}
+
+	if (Keyboard::key(GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		transform = glm::mat4(1.0f);
 	}
 
 	mainJ.update();
